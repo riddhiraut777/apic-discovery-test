@@ -1,19 +1,19 @@
 name: Sync Discovered API with ApiConnect
 
-on: [pull_request, workflow_dispatch, push]
+on: [workflow_dispatch, push]
 
 env:
-  API_HOST: d-j02.apiconnect.dev.automation.ibm.com
+  API_HOST: fyre-ci-321699-master-1.dev.fyre.ibm.com
   # platform_api_prefix is not required to change for ApiConnect on Cloud
-  PLATFORM_API_PREFIX: platform-api
-  PROVIDER_ORG: niraimathi
+  PLATFORM_API_PREFIX: api
+  PROVIDER_ORG: test-org
   API_FILES: gmail-api.json
   #API_FILES: gmail-api.json,mit-api.json,gmail-api.yaml,APIfolder/uber-api.json
   #API_FOLDERS: APIfolder
   
 jobs:
   check_changes_job:
-    runs-on: 'ubuntu-20.04'
+    runs-on: self-hosted
     # Declare outputs for next jobs
     outputs:
       action_changed: ${{ steps.check_workflow_changed.outputs.action_updates }}
@@ -38,7 +38,7 @@ jobs:
       run: |
         echo "folder_updates=$(git diff --name-only --diff-filter=ACMRT ${{ github.event.before }} ${{ github.sha }} | grep $API_FOLDERS | xargs)" >> $GITHUB_OUTPUT
   run-discovery:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: [ check_changes_job ]
     if: ${{ (contains(needs.check_changes_job.outputs.apifiles_env,needs.check_changes_job.outputs.changed_filename)) || (needs.check_changes_job.outputs.action_changed) || (needs.check_changes_job.outputs.folder_changed) }}
     steps:
